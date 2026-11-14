@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Control de presupuestos</title>
+<style>
+:root{--bg:#0c0a06;--card:#17130a;--input-bg:#0e0b05;--g:#e8b100;--g2:#ffd23f;--tx:#f6f0df;--m:#b3a680;--bd:rgba(232,177,0,.5);--bd2:rgba(232,177,0,.3);--soft:rgba(232,177,0,.14);--on-g:#120d00;--warn:#ff9d8a;--button-bg:#1d1707;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;accent-color:var(--g)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{padding:14px;max-width:760px;margin:auto}
+h1.t{font:700 24px Georgia,serif;color:var(--g2);margin:6px 0 14px}
+.card{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:14px;margin:0 0 12px}
+.card h2{font:700 17px Georgia,serif;color:var(--g2);margin:0 0 4px}
+label{display:block;font-size:13px;color:var(--m);margin:10px 0 4px}
+input,textarea,select{width:100%;background:var(--input-bg);color:var(--tx);border:1.5px solid var(--bd2);border-radius:10px;padding:11px;font:inherit}
+input:focus,textarea:focus,select:focus{border-color:var(--g)}
+input[type=file]::file-selector-button{background:var(--button-bg);color:var(--g2);border:1.5px solid var(--bd);border-radius:8px;padding:6px 10px;margin-right:10px;font-weight:700;font-family:inherit;cursor:pointer}
+textarea{min-height:90px}
+input[type=color]{height:46px;padding:5px;cursor:pointer}
+button{background:var(--button-bg);color:var(--g2);border:1.5px solid var(--bd);border-radius:12px;padding:12px 15px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer}
+button:hover{border-color:var(--g)}
+button.p{background:var(--g);color:var(--on-g);border-color:var(--g)}
+button.p:hover{filter:brightness(1.08)}
+button.s{padding:8px 11px;font-size:13px}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--g2);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1}
+.sp{justify-content:space-between}.sp>*{flex:0 0 auto}
+.chip{border:1.5px solid var(--bd);background:var(--soft);border-radius:99px;padding:2px 10px;font-size:12px;color:var(--g2)}
+.warn{color:var(--warn);font-size:13px;min-height:18px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--g);color:var(--on-g);font-weight:700;padding:10px 16px;border-radius:12px;border:1.5px solid var(--g);display:none;z-index:9;max-width:90%}
+.pg{width:794px;min-height:1123px;position:relative;background:#fff;color:#2b3550;padding:48px 52px 80px;font:14px/1.45 Arial,Helvetica,sans-serif}
+.pg h1{margin:0;font-size:27px;color:var(--pd-t,#8a5410)}.pg h3{margin:4px 0 0;font-size:12px;letter-spacing:2px;color:var(--pd-t,#8a5410)}
+.pg h2{margin:0;font-size:20px;color:var(--pd-h2,#1d2840)}.pg h4{margin:3px 0 0;font-size:13px;color:var(--pd-a,#b07a10)}
+.pg .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.pg .r{text-align:right}
+.pg .gl{height:4px;background:var(--pd-l,#e6b400);margin:14px 0}
+.pg .bar{display:flex;border:1.5px solid var(--pd-b,#f0cf3a);background:var(--pd-s,#fffbe8)}.pg .bar span{flex:1;padding:8px 10px;border-right:1.5px solid var(--pd-b,#f0cf3a)}.pg .bar span:last-child{border:0}
+.pg h5{margin:16px 0 6px;font-size:15px;color:var(--pd-t,#8a5410);border-bottom:1.5px solid var(--pd-b,#f0cf3a);padding-bottom:3px}
+.pg p{margin:6px 0}.pg ol,.pg ul{margin:4px 0;padding-left:22px}
+.pg .two{display:flex;gap:14px;margin:12px 0}.pg .bx{flex:1;border:1.5px solid var(--pd-b,#f0cf3a);background:var(--pd-s,#fffbe8);border-radius:8px;padding:12px}
+.pg h6{margin:0 0 6px;font-size:14px;color:var(--pd-t,#8a5410)}.pg .tt{font-size:28px;font-weight:700;color:var(--pd-t,#8a5410)}
+.pg .gr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.pg .pf{border:1.5px solid var(--pd-b,#f0cf3a);padding:4px;background:var(--pd-s,#fffbe8);text-align:center;font-size:12px;color:var(--pd-t,#8a5410)}
+.pg .pf img{width:100%;object-fit:cover;display:block}
+.pg .cl{border-top:1.5px solid var(--pd-b,#f0cf3a);margin-top:12px;padding-top:8px;font-size:12px;color:var(--pd-t,#8a5410)}
+.pg .ft{position:absolute;left:52px;right:52px;bottom:30px;display:flex;justify-content:space-between;font-size:12px;color:#8a93a8}
+</style></head><body>
+<div id="a"></div><div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const A=document.getElementById('a'),$=id=>document.getElementById(id);
+const e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>'$'+Math.round(+n||0).toLocaleString('es-AR');
+const fd=d=>d?d.split('-').reverse().join('/'):'';
+let db={set:{name:'',sub:'',foot:'',lema:'',thanks:'',appTitle:'Control de presupuestos',appearance:'night',accent:'gold',customAccent:'#e8b100'},list:[],seq:1},cur=null,view='list',q='';
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',3200)}
+const idb=()=>new Promise((r,j)=>{const o=indexedDB.open('mam',1);o.onupgradeneeded=()=>o.result.createObjectStore('kv');o.onsuccess=()=>r(o.result);o.onerror=j});
+async function load(){try{const d=await idb();const v=await new Promise(r=>{const o=d.transaction('kv').objectStore('kv').get('db');o.onsuccess=()=>r(o.result);o.onerror=()=>r()});if(v)db=v}catch(x){}if(!db.set)db.set={};Object.assign(db.set,{appTitle:(db.set.appTitle&&db.set.appTitle!=='Presupuestos MAM')?db.set.appTitle:'Control de presupuestos',appearance:db.set.appearance||'night',accent:db.set.accent||'gold',customAccent:db.set.customAccent||'#e8b100'});applyAppearance()}
+async function save(){try{const d=await idb();d.transaction('kv','readwrite').objectStore('kv').put(db,'db')}catch(x){}}
+const THEME_KEYS=['appearance','accent','customAccent'];
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),isHex=v=>/^#[0-9a-f]{6}$/i.test(v||'');
+function hx2hsl(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn,l=(mx+mn)/2;let h=0,s=0;if(d){s=d/(1-Math.abs(2*l-1));h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;if(h<0)h+=360}return[h,s,l]}
+function hsl2hx(h,s,l){h=((h%360)+360)%360;s=clamp(s,0,1);l=clamp(l,0,1);const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;let r=0,g=0,b=0;if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}return'#'+[r,g,b].map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('')}
+const lumi=hex=>{const c=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const ctr=(a,b)=>{const x=lumi(a),y=lumi(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const rgba=(hex,a)=>'rgba('+[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')+','+a+')';
+/* main/sec: colores de la interfaz (sec = tono claro para títulos en modo noche). pdf: t=títulos, a=subtítulos, l=línea gruesa, b=bordes y divisores, s=fondo suave de casilleros, h2=título derecho */
+const PAL={
+gold:{label:'Dorado profesional',main:'#e8b100',sec:'#ffd23f',night:{bg:'#0c0a06',card:'#17130a',inp:'#0e0b05',btn:'#1d1707',tx:'#f6f0df',m:'#b3a680'},pdf:{t:'#8a5410',a:'#b07a10',l:'#e6b400',b:'#f0cf3a',s:'#fffbe8',h2:'#1d2840'}},
+blue:{label:'Azul profesional',main:'#2f6fd6',sec:'#7ab0ff',pdf:{t:'#1d4f9c',a:'#2f6fd6',l:'#2f6fd6',b:'#a9c6f2',s:'#eef4fd',h2:'#14284d'}},
+green:{label:'Verde profesional',main:'#2a7d4f',sec:'#78d1a0',pdf:{t:'#1f6b43',a:'#2a7d4f',l:'#2f8f5b',b:'#a8d8bc',s:'#eef8f2',h2:'#123524'}},
+navy:{label:'Azul marino',main:'#24427f',sec:'#8ea8e6',pdf:{t:'#1b2f5e',a:'#2f4a86',l:'#24427f',b:'#a7b5d6',s:'#eef1f8',h2:'#0f1a36'}},
+teal:{label:'Verde petróleo',main:'#137a82',sec:'#62c7cc',pdf:{t:'#0d5961',a:'#137a82',l:'#137a82',b:'#9fd0d3',s:'#ecf6f7',h2:'#0b2f33'}},
+burgundy:{label:'Bordó',main:'#8c2543',sec:'#e08aa3',pdf:{t:'#6b1a31',a:'#8c2543',l:'#8c2543',b:'#deaab9',s:'#fbf1f4',h2:'#38101b'}},
+graphite:{label:'Grafito',main:'#596270',sec:'#b5bfcc',pdf:{t:'#333b47',a:'#596270',l:'#4b5563',b:'#c3c9d2',s:'#f3f4f6',h2:'#1f242b'}},
+violet:{label:'Violeta profesional',main:'#7048c0',sec:'#b9a1f2',pdf:{t:'#51308f',a:'#7048c0',l:'#7048c0',b:'#cbb9ee',s:'#f4f0fb',h2:'#2a1850'}}
+};
+function palOf(s){if(s&&s.accent==='custom'){const c=isHex(s.customAccent)?s.customAccent:'#e8b100',[h,sa,l]=hx2hsl(c);return{main:c,sec:hsl2hx(h,Math.min(sa,.85),.72),pdf:{t:hsl2hx(h,Math.min(sa,.7),.26),a:hsl2hx(h,Math.min(sa,.7),.33),l:hsl2hx(h,Math.min(sa,.75),clamp(l,.32,.5)),b:hsl2hx(h,Math.min(sa,.55),.78),s:hsl2hx(h,Math.min(sa,.6),.955),h2:hsl2hx(h,Math.min(sa,.45),.15)}}}return PAL[s&&s.accent]||PAL.gold}
+function paletteOptions(sel){return Object.keys(PAL).map(k=>`<option value="${k}" ${sel===k?'selected':''}>${PAL[k].label}</option>`).join('')+`<option value="custom" ${sel==='custom'?'selected':''}>Color personalizado</option>`}
+function themeSet(k,v,persist){db.set[k]=v;if(k==='customAccent'){db.set.accent='custom';const sel=A.querySelector('[data-sk=accent]');if(sel)sel.value='custom'}applyAppearance();if(persist)save()}
+function pdfVars(){const p=palOf(db.set||{}).pdf;return'--pd-t:'+p.t+';--pd-a:'+p.a+';--pd-l:'+p.l+';--pd-b:'+p.b+';--pd-s:'+p.s+';--pd-h2:'+p.h2}
+function applyAppearance(){
+  const s=db.set||{},day=s.appearance==='day',P=palOf(s),[h,sa,l]=hx2hsl(P.main),sb=clamp(sa*.6,0,.3);
+  const lo=day?.28:.3,hi=day?.46:.56,g=(l<lo||l>hi)?hsl2hx(h,sa,clamp(l,lo,hi)):P.main;
+  let g2,bg,card,inp,btn,tx,m;
+  if(day){g2=hsl2hx(h,Math.min(sa,.8),.28);bg=hsl2hx(h,sb*.7,.955);card='#ffffff';inp='#ffffff';btn=hsl2hx(h,sb*.7,.925);tx=hsl2hx(h,Math.min(sa,.3),.14);m=hsl2hx(h,Math.min(sa,.15),.36)}
+  else{const N=P.night||{};g2=P.sec;bg=N.bg||hsl2hx(h,sb,.05);card=N.card||hsl2hx(h,sb,.085);inp=N.inp||hsl2hx(h,sb,.06);btn=N.btn||hsl2hx(h,sb,.115);tx=N.tx||hsl2hx(h,Math.min(sa,.25),.93);m=N.m||hsl2hx(h,Math.min(sa,.25),.68)}
+  const dk=hsl2hx(h,.5,.07),on=ctr('#ffffff',g)>=ctr(dk,g)?'#ffffff':dk;
+  const root=document.documentElement,v=(k,x)=>root.style.setProperty(k,x);
+  v('--bg',bg);v('--card',card);v('--input-bg',inp);v('--tx',tx);v('--m',m);
+  v('--g',g);v('--g2',g2);v('--button-bg',btn);v('--on-g',on);
+  v('--bd',rgba(g,day?.55:.5));v('--bd2',rgba(g,day?.35:.3));v('--soft',rgba(g,day?.1:.14));
+  v('--warn',day?'#b3261e':'#ff9d8a');
+  root.style.colorScheme=day?'light':'dark';
+  document.body.style.background='var(--bg)';
+  document.body.style.color='var(--tx)';
+  document.title=s.appTitle||'Control de presupuestos';
+}
+const num=()=>'PRE-'+String(db.seq).padStart(4,'0');
+const nb=()=>({id:Date.now(),num:num(),status:'Borrador',date:'',valid:'',title:'',client:'',phone:'',addr:'',intro:'',steps:'',note:'',total:'',pay:[{p:'',w:''}],photos:[],extra:''});
+function R(){({list:L,form:F,prev:V,set:S,adm:AD})[view]();scrollTo(0,0)}
+/* LISTA */
+function L(){A.innerHTML=`<h1 class=t>${e(db.set.appTitle||'Control de presupuestos')}</h1><div class=row><button class=p onclick="nw()">+ Nuevo presupuesto</button><button onclick="view='set';R()">Ajustes</button></div><label>Buscar</label><input value="${e(q)}" placeholder="Cliente, trabajo o número" oninput="q=this.value;LS()"><div id=ls style="margin-top:14px"></div>`;LS()}
+function LS(){const l=db.list.filter(b=>(b.client+b.title+b.num).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>b.id-a.id);
+$('ls').innerHTML=l.length?l.map(b=>`<div class=card><div class="row sp"><b>${e(b.num)}</b><span class=chip>${e(b.status)}</span></div><div>${e(b.client||'Sin cliente')} - ${e(b.title||'Sin título')}</div><div style="color:var(--g2);font-weight:700;margin:4px 0 10px">${money(b.total)}</div><div class=row><button class=s onclick="op(${b.id})">Abrir</button><button class=s onclick="du(${b.id})">Duplicar</button><button class=s onclick="rm(${b.id},this)">Eliminar</button></div></div>`).join(''):'<div class=card>Todavía no hay presupuestos. Tocá "Nuevo presupuesto" para crear el primero.</div>'}
+function nw(){cur=nb();view='form';R()}
+function op(id){cur=structuredClone(db.list.find(b=>b.id===id));view='form';R()}
+async function du(id){const c=structuredClone(db.list.find(b=>b.id===id));c.id=Date.now();c.num=num();c.status='Borrador';db.list.push(c);db.seq++;await save();LS();toast('Duplicado como '+c.num)}
+async function rm(id,btn){if(!btn.dataset.s){btn.dataset.s=1;btn.textContent='¿Seguro?';setTimeout(()=>{btn.dataset.s='';btn.textContent='Eliminar'},3000);return}db.list=db.list.filter(b=>b.id!==id);await save();LS()}
+/* FORMULARIO */
+const f=(l,k,t='text',x='')=>`<label>${l}</label><input data-k="${k}" type="${t}" value="${e(cur[k])}" ${x}>`;
+const ta=(l,k)=>`<label>${l}</label><textarea data-k="${k}">${e(cur[k])}</textarea>`;
+function F(){const cl=[...new Set(db.list.map(b=>b.client).filter(Boolean))];
+A.innerHTML=`<h1 class=t>${e(cur.num)}</h1>
+<div class=card><h2>Cliente y obra</h2>${f('Nombre del cliente','client','text','list=cl')}<datalist id=cl>${cl.map(c=>`<option value="${e(c)}">`).join('')}</datalist>${f('Teléfono (para WhatsApp)','phone','tel','inputmode=tel placeholder="Ej: 11 5555 1234"')}${f('Dirección de la obra','addr')}</div>
+<div class=card><h2>Trabajo</h2>${f('Título del trabajo','title','text','placeholder="Ej: Renovación de piscina"')}<div class=row><div>${f('Fecha','date','date')}</div><div>${f('Validez (días)','valid','number','inputmode=numeric')}</div></div>${ta('Descripción inicial','intro')}${ta('Trabajos a realizar (uno por línea, salen numerados)','steps')}${ta('Nota de materiales y tiempos','note')}${ta('Observaciones extra (garantía, condiciones)','extra')}</div>
+<div class=card><h2>Importe y forma de pago</h2>${f('Importe total ($)','total','number','inputmode=numeric')}<label>Cuotas: porcentaje, momento y monto</label><div id=pay></div><div class=warn id=pw></div><button class=s onclick="cur.pay.push({p:0,w:''});PYR()">+ Agregar cuota</button></div>
+<div class=card><h2>Fotos</h2><label>Cámara o galería (se comprimen solas)</label><input type=file accept="image/*" multiple onchange="addPh(this)"><div id=ph style="margin-top:10px"></div></div>
+<div class=row><button onclick="sv(0)">Guardar borrador</button><button class=p onclick="sv(1)">Vista previa y OK</button></div><button style="width:100%;margin-top:10px" onclick="view='list';R()">Volver al listado</button>`;PYR();PH()}
+A.addEventListener('input',ev=>{const t=ev.target,d=t.dataset;if(d.k){cur[d.k]=t.value;if(d.k==='total')PY();if(d.k==='client'){const m=db.list.find(b=>b.client===t.value&&b.phone);if(m&&!cur.phone){cur.phone=m.phone;A.querySelector('[data-k=phone]').value=m.phone}}}else if(d.pi!=null){cur.pay[d.pi][d.pk]=d.pk==='p'?+t.value:t.value;PY()}else if(d.ci!=null)cur.photos[d.ci].c=t.value;else if(d.sk){if(THEME_KEYS.includes(d.sk))themeSet(d.sk,t.value,false);else db.set[d.sk]=t.value;if(d.sk==='appTitle')document.title=t.value||'Control de presupuestos'}});
+function PYR(){$('pay').innerHTML=cur.pay.map((r,i)=>`<div class=row style="margin-bottom:6px"><input style="flex:.7" type=number inputmode=numeric data-pi=${i} data-pk=p value="${e(r.p)}"><input style="flex:1.6" data-pi=${i} data-pk=w value="${e(r.w)}"><span id=am${i} style="flex:1.3;color:var(--g2);font-weight:700"></span><button class=s style="flex:0 0 auto" onclick="cur.pay.splice(${i},1);PYR()">X</button></div>`).join('');PY()}
+function PY(){const t=+cur.total||0;cur.pay.forEach((r,i)=>{const s=$('am'+i);if(s)s.textContent=money(t*r.p/100)});const sum=cur.pay.reduce((a,r)=>a+(+r.p||0),0);$('pw').textContent=(sum===100||sum===0)?'':`Los porcentajes suman ${sum}%, deberían sumar 100%.`}
+function PH(){$('ph').innerHTML=cur.photos.map((p,i)=>`<div class=row style="margin-bottom:8px;flex-wrap:nowrap"><img src="${p.d}" style="flex:0 0 64px;width:64px;height:64px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bd)"><input data-ci=${i} value="${e(p.c)}"><button class=s style="flex:0 0 auto" onclick="cur.photos.splice(${i},1);PH()">X</button></div>`).join('')}
+const cmp=f=>new Promise(r=>{const i=new Image,u=URL.createObjectURL(f);i.onload=()=>{const s=Math.min(1,1400/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL('image/jpeg',.78))};i.src=u});
+async function addPh(inp){for(const x of inp.files)cur.photos.push({d:await cmp(x),c:'Estado actual ('+(cur.photos.length+1)+')'});inp.value='';PH()}
+async function sv0(){const i=db.list.findIndex(b=>b.id===cur.id);if(i<0){db.list.push(cur);db.seq++}else db.list[i]=cur;await save()}
+async function sv(go){if(!cur.title.trim())return toast('Completá el título del trabajo');await sv0();if(go){view='prev'}else{toast('Guardado');view='list'}R()}
+/* PDF */
+function pages(b){const s=db.set,t=+b.total||0,st=b.steps.split('\n').filter(x=>x.trim()),ph=b.photos;
+const pf=(p,h)=>`<div class=pf><img src="${p.d}" style="height:${h}px"><div>${e(p.c)}</div></div>`,gr=(a,h)=>`<div class=gr>${a.map(p=>pf(p,h)).join('')}</div>`;
+const c1=`<div class=hd><div><h1>${e(s.name)}</h1><h3>${e(s.sub)}</h3></div><div class=r><h2>PRESUPUESTO DE TRABAJO</h2><h4>${e(b.title).toUpperCase()}</h4></div></div><div class=gl></div><div class=bar><span><b>Fecha:</b> ${fd(b.date)}</span>${b.client?`<span><b>Cliente:</b> ${e(b.client)}</span>`:''}<span><b>Dirección:</b> ${e(b.addr)}</span><span><b>Validez:</b> ${e(b.valid)} días</span></div><h5>DESCRIPCIÓN DE LOS TRABAJOS</h5><p>${e(b.intro)}</p>${st.length?`<p><b>Los trabajos a realizar son:</b></p><ol>${st.map(x=>`<li>${e(x)}</li>`).join('')}</ol>`:''}<p>${e(b.note)}</p><div class=two><div class=bx><h6>IMPORTE TOTAL</h6><div class=tt>${money(t)}</div></div><div class=bx><h6>FORMA DE PAGO</h6><ul>${b.pay.map(r=>`<li><b>${e(r.p)}% ${e(r.w)}:</b> ${money(t*r.p/100)}.</li>`).join('')}</ul></div></div>${b.extra?`<h5>OBSERVACIONES</h5><p>${e(b.extra)}</p>`:''}${ph.length?gr(ph.slice(0,2),170):''}`;
+const P=[c1];for(let i=2;i<ph.length;i+=6)P.push('<h5>FOTOS DEL TRABAJO</h5>'+gr(ph.slice(i,i+6),240));
+P[P.length-1]+=`<div class=cl><b>${e(s.foot)}</b> ${e(s.lema)} <i>${e(s.thanks)}</i></div>`;
+return P.map((c,i)=>`<div class=pg style="${pdfVars()}">${c}<div class=ft><span>Presupuesto - ${e(b.addr)}</span><span>Página ${i+1} de ${P.length}</span></div></div>`)}
+async function pdf(b){const h=document.createElement('div');h.style.cssText='position:fixed;left:-9999px;top:0';h.innerHTML=pages(b).join('');document.body.appendChild(h);
+try{const d=new window.jspdf.jsPDF({unit:'mm',format:'a4'});const els=[...h.children];
+for(let i=0;i<els.length;i++){const c=await html2canvas(els[i],{scale:2,useCORS:true});let w=210,ht=c.height/c.width*210;if(ht>297){w=210*297/ht;ht=297}if(i)d.addPage();d.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,w,ht)}
+return{blob:d.output('blob'),name:`Presupuesto-${b.num}-${(b.client||'cliente').replace(/[^\w]+/g,'_')}.pdf`}}finally{h.remove()}}
+/* VISTA PREVIA */
+function V(){A.innerHTML=`<h1 class=t>Vista previa ${e(cur.num)}</h1><div class=card style="padding:6px;overflow:hidden"><div id=pv></div></div><div class=row><button onclick="view='form';R()">Editar</button><button onclick="dlp()">Descargar PDF</button></div><button class=p id=wb style="width:100%;margin:10px 0" onclick="wa()" disabled>Preparando PDF...</button><div id=wl></div><label>Estado</label><select onchange="cur.status=this.value;sv0();toast('Estado actualizado')">${['Borrador','Enviado','Aprobado','Rechazado'].map(s=>`<option ${s===cur.status?'selected':''}>${s}</option>`).join('')}</select><button style="width:100%;margin-top:10px" onclick="view='list';R()">Ir al listado</button>`;
+const pv=$('pv');pv.innerHTML=pages(cur).join('<div style="height:10px"></div>');pv.style.zoom=pv.clientWidth/794;prep()}
+async function dlp(){
+  try{
+    toast('Generando PDF...');
+    const r=ready||await pdf(cur);
+    const url=URL.createObjectURL(r.blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=r.name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast('PDF listo para descargar');
+  }catch(x){console.error(x);toast('No se pudo generar o descargar el PDF')}
+}
+let ready=null;
+async function prep(){ready=null;try{const r=await pdf(cur);ready={...r,file:new File([r.blob],r.name,{type:'application/pdf'})}}catch(x){}const b=$('wb');if(!b)return;if(ready){b.disabled=false;b.textContent='Enviar por WhatsApp'}else b.textContent='No se pudo preparar el PDF'}
+const msgW=()=>`Hola ${cur.client}, te envío el presupuesto de ${cur.title}. Importe total: ${money(cur.total)}. Validez: ${cur.valid} días. Gracias.`;
+function wlink(){let d=(cur.phone||'').replace(/\D/g,'').replace(/^0+/,'');if(d&&!d.startsWith('54'))d='549'+d;return 'https://wa.me/'+d+'?text='+encodeURIComponent(msgW())}
+async function mark(){cur.status='Enviado';await sv0();const s=document.querySelector('select');if(s)s.value='Enviado'}
+async function wa(){
+  if(!ready)return toast('El PDF todavía se está preparando');
+  const f=ready.file;
+  try{
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      await navigator.share({files:[f],text:msgW()});
+      await mark();
+      return;
+    }
+  }catch(x){if(x.name==='AbortError')return;console.warn('No se pudo compartir el archivo directamente',x)}
+  fb();
+}
+function fb(){$('wl').innerHTML=`<div class=card style="margin-top:10px">Este navegador no permite adjuntar el PDF solo. Hacelo en 2 pasos:<div class=row style="margin-top:10px"><button onclick="dlp()">1. Descargar PDF</button><a href="${wlink()}" target="_blank" rel="noopener" onclick="mark()" style="display:block;text-align:center;text-decoration:none;background:var(--g);color:var(--on-g);border:1.5px solid var(--g);border-radius:12px;padding:12px 15px;font-weight:700">2. Abrir WhatsApp</a></div></div>`}
+/* AJUSTES */
+function S(){const s=db.set,k=(l,x)=>`<label>${l}</label><input data-sk="${x}" value="${e(s[x])}">`;
+A.innerHTML=`<h1 class=t>Ajustes</h1>${acctCard()}
+<div class=card><h2>Identidad de la aplicación</h2>${k('Nombre que aparece en el panel principal','appTitle')}</div>
+<div class=card><h2>Colores y apariencia</h2>
+<label>Modo de pantalla</label><select data-sk="appearance"><option value="night" ${s.appearance!=='day'?'selected':''}>Noche: fondo oscuro y letras claras</option><option value="day" ${s.appearance==='day'?'selected':''}>Día: fondo claro y letras oscuras</option></select>
+<label>Paleta de color</label><select data-sk="accent">${paletteOptions(s.accent)}</select>
+<label>Elegir color personalizado</label><input type="color" data-sk="customAccent" value="${e(s.customAccent||'#e8b100')}">
+<p style="font-size:13px;color:var(--m)">La paleta elegida se aplica a la interfaz y también a los PDF: títulos, líneas, marcos y casilleros. Al elegir un color con el selector se activa "Color personalizado".</p>
+</div>
+<div class=card><h2>Datos fijos del PDF</h2>${k('Nombre','name')}${k('Rubro','sub')}${k('Pie: nombre','foot')}${k('Pie: lema','lema')}${k('Cierre','thanks')}<button class=p style="margin-top:12px" onclick="save().then(()=>{applyAppearance();toast('Ajustes guardados')})">Guardar ajustes</button></div>
+<div class=card><h2>Respaldo</h2><p style="font-size:13px;color:var(--m)">Los presupuestos se guardan en este navegador y dispositivo. Exportá una copia periódicamente para no perderlos o pasarlos a otro dispositivo.</p><div class=row><button onclick="ex()">Exportar datos</button><button onclick="$('im').click()">Importar datos</button></div><input id=im type=file accept=".json" style="display:none" onchange="imp(this)"></div><button style="width:100%" onclick="view='list';R()">Volver</button>`}
+async function ex(){
+  try{
+    const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='respaldo-presupuestos-mam.json';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast('Respaldo descargado');
+  }catch(x){console.error(x);toast('No se pudo exportar el respaldo')}
+}
+async function imp(i){try{const v=JSON.parse(await i.files[0].text());if(!v.list||!v.set)throw 0;db=v;if(!db.set)db.set={};Object.assign(db.set,{appTitle:(db.set.appTitle&&db.set.appTitle!=='Presupuestos MAM')?db.set.appTitle:'Control de presupuestos',appearance:db.set.appearance||'night',accent:db.set.accent||'gold',customAccent:db.set.customAccent||'#e8b100'});applyAppearance();await save();toast('Datos importados');R()}catch(x){toast('Archivo de respaldo no válido')}}
+A.addEventListener('change',ev=>{const t=ev.target,d=t.dataset;if(d.sk){if(THEME_KEYS.includes(d.sk))themeSet(d.sk,t.value,true);else db.set[d.sk]=t.value;if(d.sk==='appTitle')document.title=t.value||'Control de presupuestos'}});
+/* ===== ACCESO CON USUARIO Y CONTRASEÑA (Firebase) ===== */
+const FIREBASE_CONFIG={apiKey:'AIzaSyDCFMPCRcN7biAoKvM385zHq0aWEN6FfxQ',authDomain:'control-de-presupuesto-4fe9d.firebaseapp.com',projectId:'control-de-presupuesto-4fe9d',storageBucket:'control-de-presupuesto-4fe9d.firebasestorage.app',messagingSenderId:'888291023016',appId:'1:888291023016:web:dd8be0684f866945294a9d'};   /* se completan al activar el acceso */
+const ADMIN_EMAIL='pettinatin9@gmail.com';                                                   /* correo del administrador, en minúsculas */
+const MAX_DISP_DEFECTO=2,GRACIA_HORAS=72;
+let fbAuth=null,fbDb=null,fbSec=null,me=null,unsub=null,loginMsg='',lastEm='',ulist=[],umsg='',_dev='';
+const isAdminEmail=em=>!!ADMIN_EMAIL&&(em||'').toLowerCase()===ADMIN_EMAIL.toLowerCase();
+const isAdmin=()=>!!me&&isAdminEmail(me.email);
+const hoy=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const blockMsg=d=>d.activo===false?'Tu acceso fue desactivado por el administrador.':(d.vence&&d.vence<hoy()?'Tu acceso venció el '+fd(d.vence)+'.':'');
+function devId(){if(_dev)return _dev;try{_dev=localStorage.getItem('ctrl_dev')||''}catch(x){}if(!_dev){_dev='d'+Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>b.toString(16).padStart(2,'0')).join('');try{localStorage.setItem('ctrl_dev',_dev)}catch(x){}}return _dev}
+const devName=()=>(/Android|iPhone|iPad|Windows|Mac|Linux/.exec(navigator.userAgent)||['Dispositivo'])[0];
+function authErr(x){const c=(x&&x.code)||'';return({'auth/invalid-credential':'Correo o contraseña incorrectos.','auth/wrong-password':'Correo o contraseña incorrectos.','auth/user-not-found':'Correo o contraseña incorrectos.','auth/invalid-login-credentials':'Correo o contraseña incorrectos.','auth/invalid-email':'El correo no es válido.','auth/user-disabled':'Tu acceso fue desactivado por el administrador.','auth/too-many-requests':'Demasiados intentos. Esperá unos minutos.','auth/network-request-failed':'Sin conexión a internet.','auth/email-already-in-use':'Ese correo ya existe en Firebase. Si lo eliminaste antes, borrá también la cuenta en Firebase (Authentication) o usá otro correo.','auth/weak-password':'La contraseña es muy débil (mínimo 6 caracteres).','auth/operation-not-allowed':'Falta activar "Correo y contraseña" en Firebase (Authentication).'})[c]||('No se pudo completar ('+(c||(x&&x.message)||'error')+').')}
+function boot(){
+  if(!FIREBASE_CONFIG.apiKey){R();return}
+  if(!window.firebase){loginMsg='No se pudo cargar el sistema de acceso. Revisá tu conexión e intentá de nuevo.';showLogin();return}
+  try{firebase.initializeApp(FIREBASE_CONFIG);fbAuth=firebase.auth();fbDb=firebase.firestore()}catch(x){loginMsg='No se pudo iniciar el sistema de acceso ('+(x.code||x.message)+').';showLogin();return}
+  fbAuth.onAuthStateChanged(async u=>{
+    if(unsub){unsub();unsub=null}
+    if(!u){me=null;showLogin();return}
+    A.innerHTML='<h1 class=t>'+e(db.set.appTitle||'Control de presupuestos')+'</h1><div class=card>Verificando acceso...</div>';
+    const g=await gate(u);
+    if(!g.ok){loginMsg=g.msg;me=null;await fbAuth.signOut();return}
+    me=u;loginMsg='';view='list';R();
+  });
+}
+async function gate(u){
+  if(isAdminEmail(u.email))return{ok:true};
+  try{
+    const ref=fbDb.collection('usuarios').doc(u.uid),snap=await ref.get();
+    if(!snap.exists)return{ok:false,msg:'Tu usuario no tiene acceso. Pedíselo al administrador.'};
+    const d=snap.data(),bad=blockMsg(d);if(bad)return{ok:false,msg:bad};
+    const dev=devId(),ds=d.dispositivos||{};
+    if(!ds[dev]&&Object.keys(ds).length>=(d.maxDisp||MAX_DISP_DEFECTO))return{ok:false,msg:'Esta cuenta ya está en el máximo de dispositivos. Pedile al administrador que libere uno.'};
+    await ref.update({['dispositivos.'+dev]:{n:devName(),t:Date.now()},ultimoAcceso:Date.now()});
+    try{localStorage.setItem('ctrl_ok_'+u.uid,String(Date.now()))}catch(x){}
+    unsub=ref.onSnapshot(sn=>{
+      if(!sn.exists){kick('Tu usuario fue eliminado.');return}
+      const q=sn.data(),b=blockMsg(q);
+      if(b){kick(b);return}
+      if(!(q.dispositivos||{})[dev])kick('El administrador liberó este dispositivo. Volvé a ingresar.');
+    },er=>{if(er&&er.code==='permission-denied')kick('Tu acceso fue desactivado.')});
+    return{ok:true};
+  }catch(x){
+    if(x&&x.code==='permission-denied')return{ok:false,msg:'Tu usuario no tiene acceso. Pedíselo al administrador.'};
+    let t=0;try{t=+localStorage.getItem('ctrl_ok_'+u.uid)||0}catch(y){}
+    if(Date.now()-t<GRACIA_HORAS*3600000)return{ok:true};
+    return{ok:false,msg:'Sin conexión: necesitás internet para verificar tu acceso.'};
+  }
+}
+function kick(msg){loginMsg=msg;if(unsub){unsub();unsub=null}fbAuth.signOut()}
+function logout(){loginMsg='';if(unsub){unsub();unsub=null}fbAuth.signOut()}
+function showLogin(){
+  view='list';const t=e(db.set.appTitle||'Control de presupuestos');
+  if(!fbAuth){A.innerHTML=`<h1 class=t>${t}</h1><div class=card><div class=warn>${e(loginMsg)}</div><button class=p style="width:100%;margin-top:10px" onclick="location.reload()">Reintentar</button></div>`;return}
+  A.innerHTML=`<h1 class=t>${t}</h1><div class=card><h2>Ingresar</h2><label>Correo</label><input id=lg_e type=email inputmode=email autocomplete=username value="${e(lastEm)}" onkeydown="if(event.key==='Enter')doLogin()"><label>Contraseña</label><input id=lg_p type=password autocomplete=current-password onkeydown="if(event.key==='Enter')doLogin()"><div class=warn id=lg_w style="margin-top:8px">${e(loginMsg)}</div><button class=p id=lg_b style="width:100%;margin-top:6px" onclick="doLogin()">Ingresar</button><button class=s style="width:100%;margin-top:10px" onclick="doReset()">Olvidé mi contraseña</button></div>`;
+}
+async function doLogin(){const em=$('lg_e').value.trim(),pw=$('lg_p').value,w=$('lg_w'),b=$('lg_b');if(!em||!pw){w.textContent='Completá correo y contraseña.';return}lastEm=em;w.textContent='';b.disabled=true;try{await fbAuth.signInWithEmailAndPassword(em,pw)}catch(x){w.textContent=authErr(x);b.disabled=false}}
+async function doReset(){const em=$('lg_e').value.trim(),w=$('lg_w');if(!em){w.textContent='Escribí tu correo y tocá de nuevo.';return}try{await fbAuth.sendPasswordResetEmail(em);w.textContent='Si ese correo existe, te enviamos un mail para cambiar la contraseña.'}catch(x){w.textContent=authErr(x)}}
+function acctCard(){
+  if(!FIREBASE_CONFIG.apiKey)return`<div class=card><h2>Acceso</h2><p style="font-size:13px;color:var(--m);margin:6px 0 0">El ingreso con usuario y contraseña todavía no está activado en esta copia.</p></div>`;
+  if(!me)return'';
+  return`<div class=card><h2>Cuenta</h2><p style="font-size:13px;color:var(--m);margin:6px 0 10px">Sesión iniciada como ${e(me.email)}</p><div class=row>${isAdmin()?`<button onclick="view='adm';R()">Administrar usuarios</button>`:''}<button onclick="logout()">Cerrar sesión</button></div></div>`;
+}
+/* ----- Administración de usuarios (solo administrador) ----- */
+const uref=id=>fbDb.collection('usuarios').doc(id);
+async function loadUsers(){umsg='';try{const q=await fbDb.collection('usuarios').get();ulist=q.docs.map(d=>({uid:d.id,...d.data()})).sort((a,b)=>(a.email||'').localeCompare(b.email||''))}catch(x){ulist=[];umsg='No se pudo cargar la lista ('+(x.code||x.message)+').'}}
+async function AD(){if(!isAdmin()){view='list';R();return}A.innerHTML='<h1 class=t>Usuarios</h1><div class=card>Cargando...</div>';await loadUsers();drawAD()}
+function drawAD(){
+  const rows=ulist.map(u=>{const est=u.activo===false?'Bloqueado':(blockMsg(u)?'Vencido':'Activo'),ds=u.dispositivos||{},n=Object.keys(ds).length,id=e(u.uid);
+    return`<div class=card><div class="row sp"><b style="word-break:break-all">${e(u.email)}</b><span class=chip>${est}</span></div><div style="font-size:13px;color:var(--m);margin:6px 0">Dispositivos: ${n}/${e(u.maxDisp||MAX_DISP_DEFECTO)}${n?' ('+e(Object.values(ds).map(x=>x.n).join(', '))+')':''}<br>Último acceso: ${u.ultimoAcceso?e(new Date(u.ultimoAcceso).toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'})):'nunca'}</div><div class=row><div><label>Vence (vacío = sin vencimiento)</label><input type=date data-uv="${id}" value="${e(u.vence||'')}"></div><div><label>Máx. dispositivos</label><input type=number inputmode=numeric min=1 data-um="${id}" value="${e(u.maxDisp||MAX_DISP_DEFECTO)}"></div></div><div class=row style="margin-top:10px"><button class=s onclick="uSave('${id}')">Guardar</button><button class=s onclick="uToggle('${id}',${u.activo===false})">${u.activo===false?'Activar':'Bloquear'}</button><button class=s onclick="uFree('${id}')">Liberar dispositivos</button></div><div class=row style="margin-top:8px"><button class=s onclick="uReset('${id}')">Enviar cambio de clave</button><button class=s onclick="uDel('${id}',this)">Eliminar</button></div></div>`}).join('')||'<div class=card>Todavía no creaste usuarios.</div>';
+  A.innerHTML=`<h1 class=t>Usuarios</h1><div class=card><h2>Crear usuario</h2><label>Correo</label><input id=nu_e type=email inputmode=email autocomplete=off><label>Contraseña (mínimo 6 caracteres)</label><input id=nu_p type=text autocomplete=off><div class=row><div><label>Máx. dispositivos</label><input id=nu_m type=number inputmode=numeric min=1 value="${MAX_DISP_DEFECTO}"></div><div><label>Vence (opcional)</label><input id=nu_v type=date></div></div><div class=warn id=nu_w style="margin-top:8px"></div><button class=p style="width:100%;margin-top:6px" onclick="crearUsuario()">Crear usuario</button></div>${umsg?`<div class=warn>${e(umsg)}</div>`:''}<h1 class=t style="font-size:18px">Usuarios (${ulist.length})</h1>${rows}<button style="width:100%" onclick="view='set';R()">Volver</button>`;
+}
+async function crearUsuario(){
+  const em=$('nu_e').value.trim().toLowerCase(),pw=$('nu_p').value,mx=Math.max(1,parseInt($('nu_m').value)||MAX_DISP_DEFECTO),vv=$('nu_v').value,w=$('nu_w');
+  if(!em||pw.length<6){w.textContent='Poné un correo y una contraseña de al menos 6 caracteres.';return}
+  w.textContent='Creando...';
+  try{
+    if(!fbSec)fbSec=firebase.initializeApp(FIREBASE_CONFIG,'sec');
+    const c=await fbSec.auth().createUserWithEmailAndPassword(em,pw),uid=c.user.uid;await fbSec.auth().signOut();
+    await uref(uid).set({email:em,activo:true,vence:vv||'',maxDisp:mx,dispositivos:{},ultimoAcceso:0,creado:Date.now()});
+    toast('Usuario creado');await loadUsers();drawAD();
+  }catch(x){w.textContent=authErr(x)}
+}
+async function uAct(fn,ok){try{await fn();toast(ok)}catch(x){toast('No se pudo: '+(x.code||x.message))}await loadUsers();drawAD()}
+const uSave=id=>uAct(()=>uref(id).update({vence:document.querySelector('[data-uv="'+id+'"]').value||'',maxDisp:Math.max(1,parseInt(document.querySelector('[data-um="'+id+'"]').value)||MAX_DISP_DEFECTO)}),'Guardado');
+const uToggle=(id,on)=>uAct(()=>uref(id).update({activo:on}),on?'Usuario activado':'Usuario bloqueado');
+const uFree=id=>uAct(()=>uref(id).update({dispositivos:{}}),'Dispositivos liberados');
+const uReset=id=>{const u=ulist.find(x=>x.uid===id);return uAct(()=>fbAuth.sendPasswordResetEmail(u.email),'Correo enviado a '+u.email)};
+function uDel(id,btn){if(!btn.dataset.s){btn.dataset.s=1;btn.textContent='¿Seguro?';setTimeout(()=>{btn.dataset.s='';btn.textContent='Eliminar'},3000);return}uAct(()=>uref(id).delete(),'Usuario eliminado (queda sin acceso)')}
+load().then(boot);
+</script></body></html>
